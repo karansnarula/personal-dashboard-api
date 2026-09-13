@@ -1,0 +1,10 @@
+# secrets and local config
+.env
+
+# build output
+/bin/
+
+# editor/os noise
+.DS_Store
+.idea/
+.vscode/
