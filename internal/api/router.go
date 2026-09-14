@@ -38,9 +38,24 @@ func NewRouter(cfg Config, deps Deps) *gin.Engine {
 	})
 
 	health := handler.NewHealth(deps.DB)
+	auth := handler.NewAuth(deps.AuthService)
+	widgets := handler.NewWidget(deps.WidgetService)
 
 	v1 := r.Group("/api/v1")
 	v1.GET("/healthz", health.Check)
+
+	v1.POST("/auth/register", auth.Register)
+	v1.POST("/auth/login", auth.Login)
+	v1.POST("/auth/logout", auth.Logout)
+
+	protected := v1.Group("", middleware.Auth(deps.Tokens))
+	{
+		protected.POST("/widgets", widgets.Create)
+		protected.GET("/widgets", widgets.List)
+		protected.GET("/widgets/:id", widgets.Get)
+		protected.PATCH("/widgets/:id", widgets.Update)
+		protected.DELETE("/widgets/:id", widgets.Delete)
+	}
 
 	return r
 }

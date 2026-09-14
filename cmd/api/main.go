@@ -14,8 +14,11 @@ import (
 	"time"
 
 	"github.com/karansnarula/personal-dashboard-api/internal/api"
+	"github.com/karansnarula/personal-dashboard-api/internal/auth"
 	"github.com/karansnarula/personal-dashboard-api/internal/config"
 	"github.com/karansnarula/personal-dashboard-api/internal/database"
+	"github.com/karansnarula/personal-dashboard-api/internal/repository/postgres"
+	"github.com/karansnarula/personal-dashboard-api/internal/service"
 )
 
 const shutdownTimeout = 10 * time.Second
@@ -53,9 +56,19 @@ func run() error {
 
 	warnMissingKeys(cfg, logger)
 
+	userRepo := postgres.NewUserRepository(pool)
+	widgetRepo := postgres.NewWidgetRepository(pool)
+	tokens := auth.NewTokenIssuer(cfg.JWTSecret, cfg.JWTTTL)
+
 	srv := api.NewServer(
 		api.Config{Port: cfg.HTTPPort, Development: cfg.IsDevelopment()},
-		api.Deps{Logger: logger, DB: pool},
+		api.Deps{
+			Logger:        logger,
+			DB:            pool,
+			Tokens:        tokens,
+			AuthService:   service.NewAuthService(userRepo, tokens),
+			WidgetService: service.NewWidgetService(widgetRepo),
+		},
 	)
 
 	errCh := make(chan error, 1)

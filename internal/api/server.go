@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/karansnarula/personal-dashboard-api/internal/api/handler"
+	"github.com/karansnarula/personal-dashboard-api/internal/api/middleware"
 )
 
 // Config is the subset of app configuration the HTTP layer needs.
@@ -20,6 +21,10 @@ type Config struct {
 type Deps struct {
 	Logger *slog.Logger
 	DB     handler.Pinger
+	Tokens middleware.TokenParser
+
+	AuthService   handler.AuthService
+	WidgetService handler.WidgetService
 }
 
 // NewServer returns a configured *http.Server. Timeouts are set so a slow or
