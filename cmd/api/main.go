@@ -19,6 +19,7 @@ import (
 	"github.com/karansnarula/personal-dashboard-api/internal/database"
 	"github.com/karansnarula/personal-dashboard-api/internal/repository/postgres"
 	"github.com/karansnarula/personal-dashboard-api/internal/service"
+	"github.com/karansnarula/personal-dashboard-api/internal/widget"
 )
 
 const shutdownTimeout = 10 * time.Second
@@ -59,6 +60,11 @@ func run() error {
 	userRepo := postgres.NewUserRepository(pool)
 	widgetRepo := postgres.NewWidgetRepository(pool)
 	tokens := auth.NewTokenIssuer(cfg.JWTSecret, cfg.JWTTTL)
+	clients := widget.NewRegistry(widget.Config{
+		OpenWeatherMapKey: cfg.OpenWeatherMapKey,
+		NewsAPIKey:        cfg.NewsAPIKey,
+		FinnhubKey:        cfg.FinnhubKey,
+	})
 
 	srv := api.NewServer(
 		api.Config{Port: cfg.HTTPPort, Development: cfg.IsDevelopment()},
@@ -68,6 +74,9 @@ func run() error {
 			Tokens:        tokens,
 			AuthService:   service.NewAuthService(userRepo, tokens),
 			WidgetService: service.NewWidgetService(widgetRepo),
+			DashboardService: service.NewDashboardService(
+				widgetRepo, clients, cfg.ExternalTimeout, logger,
+			),
 		},
 	)
 

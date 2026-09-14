@@ -23,8 +23,9 @@ type Deps struct {
 	DB     handler.Pinger
 	Tokens middleware.TokenParser
 
-	AuthService   handler.AuthService
-	WidgetService handler.WidgetService
+	AuthService      handler.AuthService
+	WidgetService    handler.WidgetService
+	DashboardService handler.DashboardService
 }
 
 // NewServer returns a configured *http.Server. Timeouts are set so a slow or

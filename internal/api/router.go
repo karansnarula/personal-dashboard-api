@@ -40,6 +40,7 @@ func NewRouter(cfg Config, deps Deps) *gin.Engine {
 	health := handler.NewHealth(deps.DB)
 	auth := handler.NewAuth(deps.AuthService)
 	widgets := handler.NewWidget(deps.WidgetService)
+	dashboard := handler.NewDashboard(deps.DashboardService)
 
 	v1 := r.Group("/api/v1")
 	v1.GET("/healthz", health.Check)
@@ -55,6 +56,8 @@ func NewRouter(cfg Config, deps Deps) *gin.Engine {
 		protected.GET("/widgets/:id", widgets.Get)
 		protected.PATCH("/widgets/:id", widgets.Update)
 		protected.DELETE("/widgets/:id", widgets.Delete)
+
+		protected.GET("/dashboard", dashboard.Get)
 	}
 
 	return r
