@@ -146,13 +146,24 @@ data. Partial success is the contract.
 The sequential baseline is logged on every dashboard request:
 
 ```
-{"level":"INFO","msg":"dashboard assembled","mode":"sequential","widgets":4,"elapsed_ms":712}
+{"level":"INFO","msg":"dashboard assembled","mode":"sequential","widgets":4,"elapsed_ms":2169}
 ```
 
-Measured on a MacBook Air with two live Frankfurter widgets and two
-unconfigured widgets: total 712 ms, roughly the sum of the two live calls
-(164 ms + 547 ms). With all four providers configured the total grows with
-each widget added.
+Measured on a MacBook Air with all four providers configured, one widget each:
+
+| widget   | provider       | duration |
+|----------|----------------|---------:|
+| weather  | OpenWeatherMap |   111 ms |
+| news     | NewsAPI        |  1163 ms |
+| stock    | Finnhub        |   333 ms |
+| currency | Frankfurter    |   560 ms |
+| **total (sequential)** | | **2169 ms** |
+
+The total is the sum of the parts (2167 ms) plus overhead, which is the
+defining property of the sequential approach: every widget added makes the
+dashboard slower by that widget's full latency. The slowest single call here
+was 1163 ms, so a concurrent version should land close to that number instead
+of the sum.
 
 _Concurrent implementation and its numbers: to be added._
 
