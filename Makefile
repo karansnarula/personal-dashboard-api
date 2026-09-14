@@ -6,7 +6,7 @@ GOOSE_VERSION  := v3.28.0
 MIGRATIONS_DIR := internal/database/migrations
 GOOSE          := go run github.com/pressly/goose/v3/cmd/goose@$(GOOSE_VERSION) -dir $(MIGRATIONS_DIR) postgres "$(DATABASE_URL)"
 
-.PHONY: run build test vet fmt tidy db-up db-down db-logs db-shell migrate-up migrate-down migrate-status migrate-create
+.PHONY: run build test test-db vet fmt tidy db-up db-down db-logs db-shell migrate-up migrate-down migrate-status migrate-create
 
 ## Application
 run:            ## Run the API locally
@@ -15,8 +15,11 @@ run:            ## Run the API locally
 build:          ## Build binary to bin/api
 	go build -o bin/api ./cmd/api
 
-test:           ## Run all tests with the race detector
+test:           ## Run unit tests with the race detector (DB tests skipped)
 	go test -race ./...
+
+test-db:        ## Run all tests including Postgres integration tests (needs db-up)
+	TEST_DATABASE_URL="$(DATABASE_URL)" go test -race ./...
 
 vet:            ## Static checks
 	go vet ./...
