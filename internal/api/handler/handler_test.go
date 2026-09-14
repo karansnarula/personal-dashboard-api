@@ -124,7 +124,7 @@ func newTestRouter(t *testing.T) http.Handler {
 	widgets := &memWidgets{byID: map[int64]domain.Widget{}}
 	tokens := fakeTokens{}
 
-	return api.NewRouter(api.Config{Development: false}, api.Deps{
+	return api.NewRouter(api.Config{Development: false, CORSAllowedOrigins: []string{"http://localhost:5173"}}, api.Deps{
 		Logger:        logger,
 		DB:            okPinger{},
 		Tokens:        tokens,
@@ -174,6 +174,33 @@ func login(t *testing.T, h http.Handler, email string) string {
 		t.Fatalf("login: %d %v", code, out)
 	}
 	return out["token"].(string)
+}
+
+func TestCORS(t *testing.T) {
+	h := newTestRouter(t)
+
+	// Preflight from an allowed origin is answered without hitting the route.
+	req := httptest.NewRequest("OPTIONS", "/api/v1/widgets", nil)
+	req.Header.Set("Origin", "http://localhost:5173")
+	req.Header.Set("Access-Control-Request-Method", "POST")
+	req.Header.Set("Access-Control-Request-Headers", "Authorization, Content-Type")
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+	if rec.Code != 204 || rec.Header().Get("Access-Control-Allow-Origin") != "http://localhost:5173" {
+		t.Fatalf("preflight: %d %v", rec.Code, rec.Header())
+	}
+	if !strings.Contains(rec.Header().Get("Access-Control-Allow-Headers"), "Authorization") {
+		t.Fatalf("Authorization not allowed: %v", rec.Header())
+	}
+
+	// A disallowed origin gets no CORS headers.
+	req = httptest.NewRequest("GET", "/api/v1/healthz", nil)
+	req.Header.Set("Origin", "http://evil.example")
+	rec = httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+	if rec.Header().Get("Access-Control-Allow-Origin") != "" {
+		t.Fatalf("disallowed origin got CORS headers: %v", rec.Header())
+	}
 }
 
 func TestHealth(t *testing.T) {

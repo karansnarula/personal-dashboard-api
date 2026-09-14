@@ -28,6 +28,7 @@ func NewRouter(cfg Config, deps Deps) *gin.Engine {
 		middleware.RequestID(),
 		middleware.Logger(deps.Logger),
 		middleware.Recovery(deps.Logger),
+		middleware.CORS(cfg.CORSAllowedOrigins),
 		middleware.BodyLimit(maxBodyBytes),
 	)
 	r.NoRoute(func(c *gin.Context) {

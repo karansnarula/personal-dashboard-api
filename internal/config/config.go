@@ -26,6 +26,9 @@ type Config struct {
 	JWTTTL          time.Duration `env:"JWT_TTL" envDefault:"24h"`
 	ExternalTimeout time.Duration `env:"EXTERNAL_TIMEOUT" envDefault:"5s"`
 
+	// Browser origins allowed to call the API (comma-separated in env).
+	CORSAllowedOrigins []string `env:"CORS_ALLOWED_ORIGINS" envDefault:"http://localhost:5173,http://localhost:3000"`
+
 	OpenWeatherMapKey string `env:"OPENWEATHERMAP_API_KEY"`
 	NewsAPIKey        string `env:"NEWSAPI_API_KEY"`
 	FinnhubKey        string `env:"FINNHUB_API_KEY"`

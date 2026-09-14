@@ -12,8 +12,9 @@ import (
 
 // Config is the subset of app configuration the HTTP layer needs.
 type Config struct {
-	Port        int
-	Development bool
+	Port               int
+	Development        bool
+	CORSAllowedOrigins []string
 }
 
 // Deps are the collaborators handlers need. main wires them; nothing in

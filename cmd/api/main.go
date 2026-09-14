@@ -67,7 +67,11 @@ func run() error {
 	})
 
 	srv := api.NewServer(
-		api.Config{Port: cfg.HTTPPort, Development: cfg.IsDevelopment()},
+		api.Config{
+			Port:               cfg.HTTPPort,
+			Development:        cfg.IsDevelopment(),
+			CORSAllowedOrigins: cfg.CORSAllowedOrigins,
+		},
 		api.Deps{
 			Logger:        logger,
 			DB:            pool,

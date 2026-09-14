@@ -56,7 +56,7 @@ handler  →  service  →  repository  →  Postgres
   widget at fetch time, not as a startup failure.
 
 Cross-cutting: every request carries an `X-Request-ID` that appears in logs
-and error responses; errors share one envelope
+and error responses; CORS is enabled for the origins in `CORS_ALLOWED_ORIGINS`; errors share one envelope
 `{"error": {"code", "message", "request_id"}}`; the server has read, write,
 and idle timeouts and shuts down gracefully on SIGINT/SIGTERM.
 

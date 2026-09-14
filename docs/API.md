@@ -20,10 +20,10 @@ disagree, the code wins; please fix the document.
 - IDs are 64-bit integers, serialised as JSON numbers.
 - Every response carries an `X-Request-ID` header. Error bodies include the
   same value. Include it when reporting a problem; it appears in server logs.
-- The server does not currently send CORS headers. A browser app on a
-  different origin (for example a React dev server on `localhost:5173`) will be
-  blocked by the browser until CORS middleware is added on the backend. See
-  "Known gaps" at the end.
+- CORS is enabled for the origins listed in the server's
+  `CORS_ALLOWED_ORIGINS` (default: `http://localhost:5173` and
+  `http://localhost:3000`). Allowed headers: `Authorization`, `Content-Type`,
+  `X-Request-ID`. `X-Request-ID` is exposed to browser code.
 
 ## Authentication
 
@@ -333,8 +333,9 @@ GET  /api/v1/dashboard                          + Bearer → 200
 
 ## Known gaps relevant to a frontend
 
-- **No CORS headers yet.** Required before a browser app on another origin can
-  call this API. The fix is a small middleware on the backend; ask for it.
+- **CORS origins are a fixed allow-list.** If the React app runs on a port
+  other than 5173 or 3000, add it to `CORS_ALLOWED_ORIGINS` in the backend's
+  `.env`.
 - **No refresh tokens.** Tokens last 24 h; re-login on `401`.
 - **No pagination** on `GET /widgets`. Fine for a personal dashboard.
 - **No `GET /auth/me`** endpoint. If the UI needs the current user's email
